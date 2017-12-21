@@ -65,6 +65,9 @@ fi
 echo "Using 'asar' to extract 'core.asar'..."
 if [ ! -d "/tmp/discord-css-injection" ]; then
     mkdir /tmp/discord-css-injection
+else
+    rm -rf /tmp/discord-css-injection
+    mkdir /tmp/discord-css-injection
 fi
 if [ -f "$HOME/node_modules/.bin/asar" ]; then
     ~/node_modules/.bin/asar e "$HOME"/.config/discordcanary/"$VERSION_DIR"/modules/discord_desktop_core/core.asar /tmp/discord-css-injection/ || { echo "Failed to extract 'core.asar'!"; exit 1; }
@@ -107,9 +110,11 @@ elif [ -f "$RUNNING_DIR/../share/discord-css-injection/node_modules/asar/bin/asa
 elif type asar >/dev/null 2>&1; then
     asar p /tmp/discord-css-injection/ "$HOME"/.config/discordcanary/"$VERSION_DIR"/modules/discord_desktop_core/core.asar || { echo "Failed to extract 'core.asar'!"; exit 1; }
 else
+    rm -rf /tmp/discord-css-injection
     echo "'asar' not found; could not pack 'core.asar'!"
     exit 1
 fi
+rm -rf /tmp/discord-css-injection
 # Create cssInjection.js from BeautifulDiscord in $HOME/.config/discordcanary if it does not exist
 if [ -f "$HOME/.config/discordcanary/cssInjection.js" ]; then
     rm "$HOME"/.config/discordcanary/cssInjection.js
