@@ -1,0 +1,150 @@
+#!/bin/bash -e
+# Title: discord-css-injection
+# Description: Uses asar, grep, and sed to add the cssInjection.js script from BeautifulDiscord into Discord Canary's config dir
+# Description: Currently only works with Discord Canary, but support for other versions will be added when `core.asar` is pushed to them
+# License: MIT
+# Dependencies: nodejs, asar
+
+# Set the path to the CSS file that the user will put their CSS changes in
+if [ -z "$1" ]; then
+    CSS_PATH="$HOME/.config/discordcanary/custom-css.css"
+else
+    CSS_PATH="$1"
+fi
+
+# Detect the directory containing the modules directory using grep
+VERSION_DIR="$(dir -C -w 1 "$HOME"/.config/discordcanary | grep '^[0-9].')"
+if [ ! -f "$HOME/.config/discordcanary/$VERSION_DIR/modules/discord_desktop_core/core.asar" ]; then
+    echo "core.asar not found!"
+    echo "Has '$HOME/.config/discordcanary' already been modified?"
+    exit 1
+fi
+
+# Remove extracted directories and backed up core.asar.bak if they exist
+if [ -d "$HOME/.config/discordcanary/$VERSION_DIR/modules/discord_desktop_core/app" ]; then
+    echo "Removing previously extracted folders from core.asar..."
+    rm -rf "$HOME"/.config/discordcanary/"$VERSION_DIR"/modules/discord_desktop_core/app
+    rm -rf "$HOME"/.config/discordcanary/"$VERSION_DIR"/modules/discord_desktop_core/common
+    rm -rf "$HOME"/.config/discordcanary/"$VERSION_DIR"/modules/discord_desktop_core/node_modules
+    rm -f "$HOME"/.config/discordcanary/"$VERSION_DIR"/modules/discord_desktop_core/core.asar.bak
+fi
+
+# Use 'asar' to extract 'core.asar' to '$HOME/.config/discordcanary/$VERSION_DIR/modules/discord_desktop_core'
+echo "Using 'asar' to extract 'core.asar'..."
+if [ -f "$HOME/node_modules/.bin/asar" ]; then
+    ~/node_modules/.bin/asar e "$HOME"/.config/discordcanary/"$VERSION_DIR"/modules/discord_desktop_core/core.asar "$HOME"/.config/discordcanary/"$VERSION_DIR"/modules/discord_desktop_core/ || { echo "Failed to extract 'core.asar'!"; exit 1; }
+elif type asar >/dev/null; then
+    asar e "$HOME"/.config/discordcanary/"$VERSION_DIR"/modules/discord_desktop_core/core.asar "$HOME"/.config/discordcanary/"$VERSION_DIR"/modules/discord_desktop_core/ || { echo "Failed to extract 'core.asar'!"; exit 1; }
+else
+    echo "'asar' not found; could not extract 'core.asar'!"
+    exit 1
+fi
+
+# Create a backup of 'core.asar' just in case
+echo "Moving 'core.asar' to 'core.asar.bak'..."
+mv "$HOME"/.config/discordcanary/"$VERSION_DIR"/modules/discord_desktop_core/core.asar "$HOME"/.config/discordcanary/"$VERSION_DIR"/modules/discord_desktop_core/core.asar.bak
+
+# Use sed to add variables fs and fs2 to mainScreen.js right above the path varaible
+echo "Adding necessary variables and function for hotloading CSS to '$HOME/.config/discordcanary/$VERSION_DIR/modules/discord_desktop_core/app/mainScreen.js'..."
+sed -i '/var _path = require.*;/ i \
+var _fs = require('"'"'fs'"'"');\
+\
+var _fs2 = _interopRequireDefault(_fs);\
+' "$HOME"/.config/discordcanary/"$VERSION_DIR"/modules/discord_desktop_core/app/mainScreen.js || { echo "Failed to modify 'mainScreen.js'!"; exit 1; }
+
+# Use sed to add the function from BeautifulDiscord to hotload CSS to mainScreen.js directly above the crash detection function
+sed -i '/  mainWindow.webContents.on(*..*, function (e, killed).*/ i \
+  mainWindow.webContents.on('"'"'dom-ready'"'"', function () {\
+    mainWindow.webContents.executeJavaScript(\
+      _fs2.default.readFileSync('"'"'/home/simonizor/.config/discordcanary/cssInjection.js'"'"', '"'"'utf-8'"'"')\
+    );\
+  });\
+' "$HOME"/.config/discordcanary/"$VERSION_DIR"/modules/discord_desktop_core/app/mainScreen.js || { echo "Failed to modify 'mainScreen.js'!"; exit 1; }
+# Replace the cssInjection.js path with the proper path using $HOME
+sed -i "s%/home/simonizor/.config/discordcanary/cssInjection.js%$HOME/.config/discordcanary/cssInjection.js%g" "$HOME"/.config/discordcanary/"$VERSION_DIR"/modules/discord_desktop_core/app/mainScreen.js
+
+# Create cssInjection.js from BeautifulDiscord in $HOME/.config/discordcanary if it does not exist
+if [ ! -f "$HOME/.config/discordcanary/cssInjection.js" ]; then
+echo "Creating '$HOME/.config/discordcanary/cssInjecton.js' for hotloading CSS..."
+cat >"$HOME"/.config/discordcanary/cssInjection.js << EOL
+window._fs = require("fs");
+window._path = require("path");
+window._fileWatcher = null;
+window._styleTag = {};
+
+window.applyCSS = function(path, name) {
+  var customCSS = window._fs.readFileSync(path, "utf-8");
+  if (!window._styleTag.hasOwnProperty(name)) {
+    window._styleTag[name] = document.createElement("style");
+    document.head.appendChild(window._styleTag[name]);
+  }
+  window._styleTag[name].innerHTML = customCSS;
+}
+
+window.clearCSS = function(name) {
+  if (window._styleTag.hasOwnProperty(name)) {
+    window._styleTag[name].innerHTML = "";
+    window._styleTag[name].parentElement.removeChild(window._styleTag[name]);
+    delete window._styleTag[name];
+  }
+}
+
+window.watchCSS = function(path) {
+  if (window._fs.lstatSync(path).isDirectory()) {
+    files = window._fs.readdirSync(path);
+    dirname = path;
+  } else {
+    files = [window._path.basename(path)];
+    dirname = window._path.dirname(path);
+  }
+
+  for (var i = 0; i < files.length; i++) {
+    var file = files[i];
+    if (file.endsWith(".css")) {
+      window.applyCSS(window._path.join(dirname, file), file)
+    }
+  }
+
+  if(window._fileWatcher === null) {
+    window._fileWatcher = window._fs.watch(path, { encoding: "utf-8" },
+      function(eventType, filename) {
+        if (!filename.endsWith(".css")) return;
+        path = window._path.join(dirname, filename);
+        if (eventType === "rename" && !window._fs.existsSync(path)) {
+          window.clearCSS(filename);
+        } else {
+          window.applyCSS(window._path.join(dirname, filename), filename);
+        }
+      }
+    );
+  }
+};
+
+window.tearDownCSS = function() {
+  for (var key in window._styleTag) {
+    if (window._styleTag.hasOwnProperty(key)) {
+      window.clearCSS(key)
+    }
+  }
+  if(window._fileWatcher !== null) { window._fileWatcher.close(); window._fileWatcher = null; }
+};
+
+window.applyAndWatchCSS = function(path) {
+  window.tearDownCSS();
+  window.watchCSS(path);
+};
+
+window.applyAndWatchCSS('/home/simonizor/github/DiscordThemes/compact-discord/compact-discord.css');
+
+EOL
+# Use sed to change the path for the custom CSS file to the path inputted by the user or the default path if no input
+sed -i "s%/home/simonizor/github/DiscordThemes/compact-discord/compact-discord.css%$CSS_PATH%g" "$HOME"/.config/discordcanary/cssInjection.js
+fi
+# Create the custom CSS file if it does not exist to avoid errors
+if [ ! -f "$CSS_PATH" ]; then
+    touch "$CSS_PATH"
+fi
+echo "Finished injecting variables and function for hotloading CSS into Discord Canary!"
+echo "You may edit your custom CSS file in $CSS_PATH"
+echo "Discord Canary must now be restarted before CSS hotloading will work; please do so now."
+exit 0
