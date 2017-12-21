@@ -8,3 +8,5 @@ To use `discord-css-injection.sh`, just grab the script from this repo, make it 
 ```
 /path/to/discord-css-injection.sh /home/simonizor/Documents/custom-css.css
 ```
+
+Changes may be reverted by using the `--revert` argument.
