@@ -67,7 +67,7 @@ if [ -f "$HOME/node_modules/.bin/asar" ]; then
     ~/node_modules/.bin/asar e "$HOME"/.config/discordcanary/"$VERSION_DIR"/modules/discord_desktop_core/core.asar "$HOME"/.config/discordcanary/"$VERSION_DIR"/modules/discord_desktop_core/ || { echo "Failed to extract 'core.asar'!"; exit 1; }
 elif [ -f "$RUNNING_DIR/../share/discord-css-injection/node_modules/asar/bin/asar.js" ]; then
     "$RUNNING_DIR"/../share/discord-css-injection/node_modules/asar/bin/asar.js e "$HOME"/.config/discordcanary/"$VERSION_DIR"/modules/discord_desktop_core/core.asar "$HOME"/.config/discordcanary/"$VERSION_DIR"/modules/discord_desktop_core/ || { echo "Failed to extract 'core.asar'!"; exit 1; }
-elif type asar >/dev/null; then
+elif type asar >/dev/null 2>&1; then
     asar e "$HOME"/.config/discordcanary/"$VERSION_DIR"/modules/discord_desktop_core/core.asar "$HOME"/.config/discordcanary/"$VERSION_DIR"/modules/discord_desktop_core/ || { echo "Failed to extract 'core.asar'!"; exit 1; }
 else
     echo "'asar' not found; could not extract 'core.asar'!"
