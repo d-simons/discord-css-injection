@@ -5,15 +5,45 @@
 # License: MIT
 # Dependencies: nodejs, asar
 
+# Detect the directory containing the modules directory using grep
+VERSION_DIR="$(dir -C -w 1 "$HOME"/.config/discordcanary | grep '^[0-9].')"
 # Set the path to the CSS file that the user will put their CSS changes in
 if [ -z "$1" ]; then
     CSS_PATH="$HOME/.config/discordcanary/custom-css.css"
 else
-    CSS_PATH="$1"
+    case $1 in
+        --revert)
+            if [ ! -f "$HOME/.config/discordcanary/$VERSION_DIR/modules/discord_desktop_core/core.asar.bak" ]; then
+                echo "'core.asar.bak' not found!"
+                echo "Has '$HOME/.config/discordcanary' been modified?"
+                exit 1
+            fi
+            echo "Removing previously extracted folders from core.asar..."
+            rm -rf "$HOME"/.config/discordcanary/"$VERSION_DIR"/modules/discord_desktop_core/app
+            rm -rf "$HOME"/.config/discordcanary/"$VERSION_DIR"/modules/discord_desktop_core/common
+            rm -rf "$HOME"/.config/discordcanary/"$VERSION_DIR"/modules/discord_desktop_core/node_modules
+            mv "$HOME"/.config/discordcanary/"$VERSION_DIR"/modules/discord_desktop_core/core.asar.bak "$HOME"/.config/discordcanary/"$VERSION_DIR"/modules/discord_desktop_core/core.asar
+            echo "Reverted changes to '$HOME/.config/discordcanary/$VERSION_DIR/modules/discord_desktop_core/'"
+            echo "If Discord Canary is running, please restart it for CSS hotloading to be removed."
+            exit 0
+            ;;
+        --help)
+            echo "discord-css-injection.sh - Add CSS hotloading to Discord Canary"
+            echo "Usage: /path/to/discord-css-injection.sh [option]"
+            echo
+            echo "The path for your custom CSS file may be specified.  For example:"
+            echo "'/path/to/discord-css-injection.sh $HOME/Documents/custom-css.css'"
+            echo
+            echo "Arguments:"
+            echo "  --revert - Revert changes to Discord Canary and remove CSS hotloading"
+            echo "  --help   - Show this help output"
+            exit 0
+            ;;
+        *)
+            CSS_PATH="$(readlink -f "$1")"
+            ;;
+    esac
 fi
-
-# Detect the directory containing the modules directory using grep
-VERSION_DIR="$(dir -C -w 1 "$HOME"/.config/discordcanary | grep '^[0-9].')"
 if [ ! -f "$HOME/.config/discordcanary/$VERSION_DIR/modules/discord_desktop_core/core.asar" ]; then
     echo "core.asar not found!"
     echo "Has '$HOME/.config/discordcanary' already been modified?"
