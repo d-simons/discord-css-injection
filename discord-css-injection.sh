@@ -42,6 +42,10 @@ else
             exit 0
             ;;
         *)
+            if [ ! -d "$(dirname $1)" ]; then
+                echo "'$1' is not a valid directory or does not exist!"
+                exit 1
+            fi
             CSS_PATH="$(readlink -f "$1")"
             ;;
     esac
@@ -199,5 +203,5 @@ if [ ! -f "$CSS_PATH" ]; then
 fi
 echo "Finished injecting variables and function for hotloading CSS into Discord Canary!"
 echo "You may edit your custom CSS file in $CSS_PATH"
-echo "Discord Canary must now be restarted before CSS hotloading will work; please do so now."
+echo "Discord Canary must be restarted before CSS hotloading will work; please do so now."
 exit 0
