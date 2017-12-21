@@ -8,7 +8,22 @@
 REALPATH="$(readlink -f $0)"
 RUNNING_DIR="$(dirname "$REALPATH")"
 # Detect the directory containing the modules directory using grep
-VERSION_DIR="$(dir -C -w 1 "$HOME"/.config/discordcanary | grep '^[0-9].')"
+VERSION_DIR="$(dir -C -w 1 "$HOME"/.config/discordcanary | grep '^[0-9].[0-9].')"
+if [ $(echo "$VERSION_DIR" | wc -l) -gt 1 ]; then
+    echo "More than one version directory was detected in Discord Canary's config directory!"
+    read -p "Remove '$HOME/.config/discordcanary/$(echo "$VERSION_DIR" | head -n 1)' directory? Y/N " VERSION_DIR_ANSWER
+    case $VERSION_DIR_ANSWER in
+        Y|y)
+            rm -rf "$HOME"/.config/discordcanary/$(echo "$VERSION_DIR" | head -n 1)
+            echo "Removed '$HOME/.config/discordcanary/$(echo "$VERSION_DIR" | head -n 1)'"
+            VERSION_DIR="$(dir -C -w 1 "$HOME"/.config/discordcanary | grep '^[0-9].[0-9].')"
+            ;;
+        *)
+            echo "'$HOME/.config/discordcanary/$(echo "$VERSION_DIR" | head -n 1)' was not removed!"
+            exit 1
+            ;;
+    esac
+fi
 # Set the path to the CSS file that the user will put their CSS changes in
 if [ -z "$1" ]; then
     CSS_PATH="$HOME/.config/discordcanary/custom-css.css"
@@ -125,7 +140,7 @@ sed -i '/  mainWindow.webContents.on(*..*, function (e, killed).*/ i \
 # Replace the cssInjection.js path with the proper path using $HOME
 sed -i "s%/home/simonizor/.config/discordcanary/cssInjection.js%$HOME/.config/discordcanary/cssInjection.js%g" /tmp/discord-css-injection/app/mainScreen.js
 # Use 'asar' to pack '/tmp/discord-css-injection' to '$HOME/.config/discordcanar/$VERSION_DIR/modules/discord_desktop_core/core.asar'
-echo "Packing '/tmp/discord-css-injection' to '$HOME/.config/discordcanar/$VERSION_DIR/modules/discord_desktop_core/core.asar'..."
+echo "Packing '/tmp/discord-css-injection' to '$HOME/.config/discordcanary/$VERSION_DIR/modules/discord_desktop_core/core.asar'..."
 if [ -f "$HOME/node_modules/.bin/asar" ]; then
     ~/node_modules/.bin/asar p /tmp/discord-css-injection/ "$HOME"/.config/discordcanary/"$VERSION_DIR"/modules/discord_desktop_core/core.asar || { echo "Failed to pack 'core.asar'!"; injectionfailure; }
 elif [ -f "$RUNNING_DIR/../share/discord-css-injection/node_modules/asar/bin/asar.js" ]; then
