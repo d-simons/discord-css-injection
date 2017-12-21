@@ -77,7 +77,7 @@ fi
 # Clean up on failure
 function injectionfailure() {
     rm -rf /tmp/discord-css-injection
-    if [ -f "$HOME/.config/discordcanary/"$VERSION_DIR"/modules/discord_desktop_core/core.asar.bak" ]; then
+    if [ -f "$HOME/.config/discordcanary/$VERSION_DIR/modules/discord_desktop_core/core.asar.bak" ]; then
         mv "$HOME"/.config/discordcanary/"$VERSION_DIR"/modules/discord_desktop_core/core.asar.bak "$HOME"/.config/discordcanary/"$VERSION_DIR"/modules/discord_desktop_core/core.asar
     fi
     exit 1
