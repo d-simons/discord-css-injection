@@ -20,7 +20,7 @@ else
                 echo "Has '$HOME/.config/discordcanary' been modified?"
                 exit 1
             fi
-            echo "Removing previously extracted folders from core.asar..."
+            echo "Removing previously modified 'core.asar' and restoring 'core.asar.bak'..."
             rm -rf "$HOME"/.config/discordcanary/"$VERSION_DIR"/modules/discord_desktop_core/app
             rm -rf "$HOME"/.config/discordcanary/"$VERSION_DIR"/modules/discord_desktop_core/common
             rm -rf "$HOME"/.config/discordcanary/"$VERSION_DIR"/modules/discord_desktop_core/node_modules
@@ -53,22 +53,25 @@ if [ ! -f "$HOME/.config/discordcanary/$VERSION_DIR/modules/discord_desktop_core
 fi
 
 # Remove extracted directories and backed up core.asar.bak if they exist
-if [ -d "$HOME/.config/discordcanary/$VERSION_DIR/modules/discord_desktop_core/app" ]; then
-    echo "Removing previously extracted folders from core.asar..."
+if [ -f "$HOME/.config/discordcanary/$VERSION_DIR/modules/discord_desktop_core/core.asar.bak" ]; then
+    echo "Removing previous core.asar.bak file..."
     rm -rf "$HOME"/.config/discordcanary/"$VERSION_DIR"/modules/discord_desktop_core/app
     rm -rf "$HOME"/.config/discordcanary/"$VERSION_DIR"/modules/discord_desktop_core/common
     rm -rf "$HOME"/.config/discordcanary/"$VERSION_DIR"/modules/discord_desktop_core/node_modules
-    rm -f "$HOME"/.config/discordcanary/"$VERSION_DIR"/modules/discord_desktop_core/core.asar.bak
+    rm -f "$HOME"/.config/discordcanary/"$VERSION_DIR"/modules/discord_desktop_core/core.asar
 fi
 
 # Use 'asar' to extract 'core.asar' to '$HOME/.config/discordcanary/$VERSION_DIR/modules/discord_desktop_core'
 echo "Using 'asar' to extract 'core.asar'..."
+if [ ! -d "/tmp/discord-css-injection" ]; then
+    mkdir /tmp/discord-css-injection
+fi
 if [ -f "$HOME/node_modules/.bin/asar" ]; then
-    ~/node_modules/.bin/asar e "$HOME"/.config/discordcanary/"$VERSION_DIR"/modules/discord_desktop_core/core.asar "$HOME"/.config/discordcanary/"$VERSION_DIR"/modules/discord_desktop_core/ || { echo "Failed to extract 'core.asar'!"; exit 1; }
+    ~/node_modules/.bin/asar e "$HOME"/.config/discordcanary/"$VERSION_DIR"/modules/discord_desktop_core/core.asar /tmp/discord-css-injection/ || { echo "Failed to extract 'core.asar'!"; exit 1; }
 elif [ -f "$RUNNING_DIR/../share/discord-css-injection/node_modules/asar/bin/asar.js" ]; then
-    "$RUNNING_DIR"/../share/discord-css-injection/node_modules/asar/bin/asar.js e "$HOME"/.config/discordcanary/"$VERSION_DIR"/modules/discord_desktop_core/core.asar "$HOME"/.config/discordcanary/"$VERSION_DIR"/modules/discord_desktop_core/ || { echo "Failed to extract 'core.asar'!"; exit 1; }
+    "$RUNNING_DIR"/../share/discord-css-injection/node_modules/asar/bin/asar.js e "$HOME"/.config/discordcanary/"$VERSION_DIR"/modules/discord_desktop_core/core.asar /tmp/discord-css-injection/ || { echo "Failed to extract 'core.asar'!"; exit 1; }
 elif type asar >/dev/null 2>&1; then
-    asar e "$HOME"/.config/discordcanary/"$VERSION_DIR"/modules/discord_desktop_core/core.asar "$HOME"/.config/discordcanary/"$VERSION_DIR"/modules/discord_desktop_core/ || { echo "Failed to extract 'core.asar'!"; exit 1; }
+    asar e "$HOME"/.config/discordcanary/"$VERSION_DIR"/modules/discord_desktop_core/core.asar /tmp/discord-css-injection/ || { echo "Failed to extract 'core.asar'!"; exit 1; }
 else
     echo "'asar' not found; could not extract 'core.asar'!"
     exit 1
@@ -79,12 +82,12 @@ echo "Moving 'core.asar' to 'core.asar.bak'..."
 mv "$HOME"/.config/discordcanary/"$VERSION_DIR"/modules/discord_desktop_core/core.asar "$HOME"/.config/discordcanary/"$VERSION_DIR"/modules/discord_desktop_core/core.asar.bak
 
 # Use sed to add variables fs and fs2 to mainScreen.js right above the path varaible
-echo "Adding necessary variables and function for hotloading CSS to '$HOME/.config/discordcanary/$VERSION_DIR/modules/discord_desktop_core/app/mainScreen.js'..."
+echo "Adding necessary variables and function for hotloading CSS to '/tmp/discord-css-injection/app/mainScreen.js'..."
 sed -i '/var _path = require.*;/ i \
 var _fs = require('"'"'fs'"'"');\
 \
 var _fs2 = _interopRequireDefault(_fs);\
-' "$HOME"/.config/discordcanary/"$VERSION_DIR"/modules/discord_desktop_core/app/mainScreen.js || { echo "Failed to modify 'mainScreen.js'!"; exit 1; }
+' /tmp/discord-css-injection/app/mainScreen.js || { echo "Failed to modify 'mainScreen.js'!"; exit 1; }
 
 # Use sed to add the function from BeautifulDiscord to hotload CSS to mainScreen.js directly above the crash detection function
 sed -i '/  mainWindow.webContents.on(*..*, function (e, killed).*/ i \
@@ -93,10 +96,20 @@ sed -i '/  mainWindow.webContents.on(*..*, function (e, killed).*/ i \
       _fs2.default.readFileSync('"'"'/home/simonizor/.config/discordcanary/cssInjection.js'"'"', '"'"'utf-8'"'"')\
     );\
   });\
-' "$HOME"/.config/discordcanary/"$VERSION_DIR"/modules/discord_desktop_core/app/mainScreen.js || { echo "Failed to modify 'mainScreen.js'!"; exit 1; }
+' /tmp/discord-css-injection/app/mainScreen.js || { echo "Failed to modify 'mainScreen.js'!"; exit 1; }
 # Replace the cssInjection.js path with the proper path using $HOME
-sed -i "s%/home/simonizor/.config/discordcanary/cssInjection.js%$HOME/.config/discordcanary/cssInjection.js%g" "$HOME"/.config/discordcanary/"$VERSION_DIR"/modules/discord_desktop_core/app/mainScreen.js
-
+sed -i "s%/home/simonizor/.config/discordcanary/cssInjection.js%$HOME/.config/discordcanary/cssInjection.js%g" /tmp/discord-css-injection/app/mainScreen.js
+echo "Packing '/tmp/discord-css-injection' to '$HOME/.config/discordcanar/$VERSION_DIR/modules/discord_desktop_core/core.asar'..."
+if [ -f "$HOME/node_modules/.bin/asar" ]; then
+    ~/node_modules/.bin/asar p /tmp/discord-css-injection/ "$HOME"/.config/discordcanary/"$VERSION_DIR"/modules/discord_desktop_core/core.asar || { echo "Failed to extract 'core.asar'!"; exit 1; }
+elif [ -f "$RUNNING_DIR/../share/discord-css-injection/node_modules/asar/bin/asar.js" ]; then
+    "$RUNNING_DIR"/../share/discord-css-injection/node_modules/asar/bin/asar.js p /tmp/discord-css-injection/ "$HOME"/.config/discordcanary/"$VERSION_DIR"/modules/discord_desktop_core/core.asar || { echo "Failed to extract 'core.asar'!"; exit 1; }
+elif type asar >/dev/null 2>&1; then
+    asar p /tmp/discord-css-injection/ "$HOME"/.config/discordcanary/"$VERSION_DIR"/modules/discord_desktop_core/core.asar || { echo "Failed to extract 'core.asar'!"; exit 1; }
+else
+    echo "'asar' not found; could not pack 'core.asar'!"
+    exit 1
+fi
 # Create cssInjection.js from BeautifulDiscord in $HOME/.config/discordcanary if it does not exist
 if [ -f "$HOME/.config/discordcanary/cssInjection.js" ]; then
     rm "$HOME"/.config/discordcanary/cssInjection.js
