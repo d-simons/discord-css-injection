@@ -5,6 +5,8 @@
 # License: MIT
 # Dependencies: nodejs, asar
 
+REALPATH="$(readlink -f $0)"
+RUNNING_DIR="$(dirname "$REALPATH")"
 # Detect the directory containing the modules directory using grep
 VERSION_DIR="$(dir -C -w 1 "$HOME"/.config/discordcanary | grep '^[0-9].')"
 # Set the path to the CSS file that the user will put their CSS changes in
@@ -63,6 +65,8 @@ fi
 echo "Using 'asar' to extract 'core.asar'..."
 if [ -f "$HOME/node_modules/.bin/asar" ]; then
     ~/node_modules/.bin/asar e "$HOME"/.config/discordcanary/"$VERSION_DIR"/modules/discord_desktop_core/core.asar "$HOME"/.config/discordcanary/"$VERSION_DIR"/modules/discord_desktop_core/ || { echo "Failed to extract 'core.asar'!"; exit 1; }
+elif [ -f "$RUNNING_DIR/../share/discord-css-injection/node_modules/asar/bin/asar.js" ]; then
+    "$RUNNING_DIR"/../share/discord-css-injection/node_modules/asar/bin/asar.js e "$HOME"/.config/discordcanary/"$VERSION_DIR"/modules/discord_desktop_core/core.asar "$HOME"/.config/discordcanary/"$VERSION_DIR"/modules/discord_desktop_core/ || { echo "Failed to extract 'core.asar'!"; exit 1; }
 elif type asar >/dev/null; then
     asar e "$HOME"/.config/discordcanary/"$VERSION_DIR"/modules/discord_desktop_core/core.asar "$HOME"/.config/discordcanary/"$VERSION_DIR"/modules/discord_desktop_core/ || { echo "Failed to extract 'core.asar'!"; exit 1; }
 else
