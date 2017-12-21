@@ -52,7 +52,7 @@ else
 fi
 if [ ! -f "$HOME/.config/discordcanary/$VERSION_DIR/modules/discord_desktop_core/core.asar" ]; then
     echo "core.asar not found!"
-    echo "Has '$HOME/.config/discordcanary' already been modified?"
+    echo "Has '$HOME/.config/discordcanary' already been modified by another app?"
     exit 1
 fi
 
@@ -65,6 +65,15 @@ if [ -f "$HOME/.config/discordcanary/$VERSION_DIR/modules/discord_desktop_core/c
     rm -f "$HOME"/.config/discordcanary/"$VERSION_DIR"/modules/discord_desktop_core/core.asar
 fi
 
+# Clean up on failure
+function injectionfailure() {
+    rm -rf /tmp/discord-css-injection
+    if [ -f "$HOME/.config/discordcanary/"$VERSION_DIR"/modules/discord_desktop_core/core.asar.bak" ]; then
+        mv "$HOME"/.config/discordcanary/"$VERSION_DIR"/modules/discord_desktop_core/core.asar.bak "$HOME"/.config/discordcanary/"$VERSION_DIR"/modules/discord_desktop_core/core.asar
+    fi
+    exit 1
+}
+
 # Use 'asar' to extract 'core.asar' to '$HOME/.config/discordcanary/$VERSION_DIR/modules/discord_desktop_core'
 echo "Using 'asar' to extract 'core.asar'..."
 if [ ! -d "/tmp/discord-css-injection" ]; then
@@ -74,14 +83,14 @@ else
     mkdir /tmp/discord-css-injection
 fi
 if [ -f "$HOME/node_modules/.bin/asar" ]; then
-    ~/node_modules/.bin/asar e "$HOME"/.config/discordcanary/"$VERSION_DIR"/modules/discord_desktop_core/core.asar /tmp/discord-css-injection/ || { echo "Failed to extract 'core.asar'!"; exit 1; }
+    ~/node_modules/.bin/asar e "$HOME"/.config/discordcanary/"$VERSION_DIR"/modules/discord_desktop_core/core.asar /tmp/discord-css-injection/ || { echo "Failed to extract 'core.asar'!"; injectionfailure; }
 elif [ -f "$RUNNING_DIR/../share/discord-css-injection/node_modules/asar/bin/asar.js" ]; then
-    "$RUNNING_DIR"/../share/discord-css-injection/node_modules/asar/bin/asar.js e "$HOME"/.config/discordcanary/"$VERSION_DIR"/modules/discord_desktop_core/core.asar /tmp/discord-css-injection/ || { echo "Failed to extract 'core.asar'!"; exit 1; }
+    "$RUNNING_DIR"/../share/discord-css-injection/node_modules/asar/bin/asar.js e "$HOME"/.config/discordcanary/"$VERSION_DIR"/modules/discord_desktop_core/core.asar /tmp/discord-css-injection/ || { echo "Failed to extract 'core.asar'!"; injectionfailure; }
 elif type asar >/dev/null 2>&1; then
-    asar e "$HOME"/.config/discordcanary/"$VERSION_DIR"/modules/discord_desktop_core/core.asar /tmp/discord-css-injection/ || { echo "Failed to extract 'core.asar'!"; exit 1; }
+    asar e "$HOME"/.config/discordcanary/"$VERSION_DIR"/modules/discord_desktop_core/core.asar /tmp/discord-css-injection/ || { echo "Failed to extract 'core.asar'!"; injectionfailure; }
 else
     echo "'asar' not found; could not extract 'core.asar'!"
-    exit 1
+    injectionfailure
 fi
 
 # Create a backup of 'core.asar' just in case
@@ -94,7 +103,7 @@ sed -i '/var _path = require.*;/ i \
 var _fs = require('"'"'fs'"'"');\
 \
 var _fs2 = _interopRequireDefault(_fs);\
-' /tmp/discord-css-injection/app/mainScreen.js || { echo "Failed to modify 'mainScreen.js'!"; exit 1; }
+' /tmp/discord-css-injection/app/mainScreen.js || { echo "Failed to modify 'mainScreen.js'!"; injectionfailure; }
 
 # Use sed to add the function from BeautifulDiscord to hotload CSS to mainScreen.js directly above the crash detection function
 sed -i '/  mainWindow.webContents.on(*..*, function (e, killed).*/ i \
@@ -103,20 +112,20 @@ sed -i '/  mainWindow.webContents.on(*..*, function (e, killed).*/ i \
       _fs2.default.readFileSync('"'"'/home/simonizor/.config/discordcanary/cssInjection.js'"'"', '"'"'utf-8'"'"')\
     );\
   });\
-' /tmp/discord-css-injection/app/mainScreen.js || { echo "Failed to modify 'mainScreen.js'!"; exit 1; }
+' /tmp/discord-css-injection/app/mainScreen.js || { echo "Failed to modify 'mainScreen.js'!"; injectionfailure; }
 # Replace the cssInjection.js path with the proper path using $HOME
 sed -i "s%/home/simonizor/.config/discordcanary/cssInjection.js%$HOME/.config/discordcanary/cssInjection.js%g" /tmp/discord-css-injection/app/mainScreen.js
 echo "Packing '/tmp/discord-css-injection' to '$HOME/.config/discordcanar/$VERSION_DIR/modules/discord_desktop_core/core.asar'..."
 if [ -f "$HOME/node_modules/.bin/asar" ]; then
-    ~/node_modules/.bin/asar p /tmp/discord-css-injection/ "$HOME"/.config/discordcanary/"$VERSION_DIR"/modules/discord_desktop_core/core.asar || { echo "Failed to extract 'core.asar'!"; exit 1; }
+    ~/node_modules/.bin/asar p /tmp/discord-css-injection/ "$HOME"/.config/discordcanary/"$VERSION_DIR"/modules/discord_desktop_core/core.asar || { echo "Failed to pack 'core.asar'!"; injectionfailure; }
 elif [ -f "$RUNNING_DIR/../share/discord-css-injection/node_modules/asar/bin/asar.js" ]; then
-    "$RUNNING_DIR"/../share/discord-css-injection/node_modules/asar/bin/asar.js p /tmp/discord-css-injection/ "$HOME"/.config/discordcanary/"$VERSION_DIR"/modules/discord_desktop_core/core.asar || { echo "Failed to extract 'core.asar'!"; exit 1; }
+    "$RUNNING_DIR"/../share/discord-css-injection/node_modules/asar/bin/asar.js p /tmp/discord-css-injection/ "$HOME"/.config/discordcanary/"$VERSION_DIR"/modules/discord_desktop_core/core.asar || { echo "Failed to pack 'core.asar'!"; injectionfailure; }
 elif type asar >/dev/null 2>&1; then
-    asar p /tmp/discord-css-injection/ "$HOME"/.config/discordcanary/"$VERSION_DIR"/modules/discord_desktop_core/core.asar || { echo "Failed to extract 'core.asar'!"; exit 1; }
+    asar p /tmp/discord-css-injection/ "$HOME"/.config/discordcanary/"$VERSION_DIR"/modules/discord_desktop_core/core.asar || { echo "Failed to pack 'core.asar'!"; injectionfailure; }
 else
     rm -rf /tmp/discord-css-injection
     echo "'asar' not found; could not pack 'core.asar'!"
-    exit 1
+    injectionfailure
 fi
 rm -rf /tmp/discord-css-injection
 # Create cssInjection.js from BeautifulDiscord in $HOME/.config/discordcanary if it does not exist
