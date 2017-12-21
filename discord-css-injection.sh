@@ -65,7 +65,7 @@ if [ -f "$HOME/.config/discordcanary/$VERSION_DIR/modules/discord_desktop_core/c
             rm -rf "$HOME"/.config/discordcanary/"$VERSION_DIR"/modules/discord_desktop_core/app
             rm -rf "$HOME"/.config/discordcanary/"$VERSION_DIR"/modules/discord_desktop_core/common
             rm -rf "$HOME"/.config/discordcanary/"$VERSION_DIR"/modules/discord_desktop_core/node_modules
-            rm -f "$HOME"/.config/discordcanary/"$VERSION_DIR"/modules/discord_desktop_core/core.asar
+            rm -f "$HOME"/.config/discordcanary/"$VERSION_DIR"/modules/discord_desktop_core/core.asar.bak
             ;;
         *)
             echo "Previous backup was not removed and no modifications were made!"
