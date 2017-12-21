@@ -16,12 +16,5 @@ If you already have `nodejs` and `asar`, you can just grab the script and make i
 git clone https://github.com/simoniz0r/discord-css-injection.git
 cd ./discord-css-injection
 chmod +x ./discord-css-injection.sh
+./discord-css-injection.sh --help
 ```
-
-Optionally, you can specify the directory of your custom CSS file by adding it as an argument.  For example:
-
-```
-/path/to/discord-css-injection.sh /home/simonizor/Documents/custom-css.css
-```
-
-Changes may be reverted by using the `--revert` argument.
