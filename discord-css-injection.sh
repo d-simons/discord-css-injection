@@ -58,11 +58,20 @@ fi
 
 # Remove extracted directories and backed up core.asar.bak if they exist
 if [ -f "$HOME/.config/discordcanary/$VERSION_DIR/modules/discord_desktop_core/core.asar.bak" ]; then
-    echo "Removing previous core.asar.bak file..."
-    rm -rf "$HOME"/.config/discordcanary/"$VERSION_DIR"/modules/discord_desktop_core/app
-    rm -rf "$HOME"/.config/discordcanary/"$VERSION_DIR"/modules/discord_desktop_core/common
-    rm -rf "$HOME"/.config/discordcanary/"$VERSION_DIR"/modules/discord_desktop_core/node_modules
-    rm -f "$HOME"/.config/discordcanary/"$VERSION_DIR"/modules/discord_desktop_core/core.asar
+    read -p "Previous backup found; remove and continue? Y/N " REMOVE_ANSWER
+    case $REMOVE_ANSWER in
+        Y|y)
+            echo "Removing previous core.asar.bak file..."
+            rm -rf "$HOME"/.config/discordcanary/"$VERSION_DIR"/modules/discord_desktop_core/app
+            rm -rf "$HOME"/.config/discordcanary/"$VERSION_DIR"/modules/discord_desktop_core/common
+            rm -rf "$HOME"/.config/discordcanary/"$VERSION_DIR"/modules/discord_desktop_core/node_modules
+            rm -f "$HOME"/.config/discordcanary/"$VERSION_DIR"/modules/discord_desktop_core/core.asar
+            ;;
+        *)
+            echo "Previous backup was not removed and no modifications were made!"
+            exit 0
+            ;;
+    esac
 fi
 
 # Clean up on failure
