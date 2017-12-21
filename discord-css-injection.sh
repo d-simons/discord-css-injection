@@ -98,7 +98,9 @@ sed -i '/  mainWindow.webContents.on(*..*, function (e, killed).*/ i \
 sed -i "s%/home/simonizor/.config/discordcanary/cssInjection.js%$HOME/.config/discordcanary/cssInjection.js%g" "$HOME"/.config/discordcanary/"$VERSION_DIR"/modules/discord_desktop_core/app/mainScreen.js
 
 # Create cssInjection.js from BeautifulDiscord in $HOME/.config/discordcanary if it does not exist
-if [ ! -f "$HOME/.config/discordcanary/cssInjection.js" ]; then
+if [ -f "$HOME/.config/discordcanary/cssInjection.js" ]; then
+    rm "$HOME"/.config/discordcanary/cssInjection.js
+fi
 echo "Creating '$HOME/.config/discordcanary/cssInjecton.js' for hotloading CSS..."
 cat >"$HOME"/.config/discordcanary/cssInjection.js << EOL
 window._fs = require("fs");
@@ -173,7 +175,6 @@ window.applyAndWatchCSS('/home/simonizor/github/DiscordThemes/compact-discord/co
 EOL
 # Use sed to change the path for the custom CSS file to the path inputted by the user or the default path if no input
 sed -i "s%/home/simonizor/github/DiscordThemes/compact-discord/compact-discord.css%$CSS_PATH%g" "$HOME"/.config/discordcanary/cssInjection.js
-fi
 # Create the custom CSS file if it does not exist to avoid errors
 if [ ! -f "$CSS_PATH" ]; then
     touch "$CSS_PATH"
