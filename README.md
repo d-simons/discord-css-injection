@@ -1,5 +1,5 @@
 # discord-css-injection
-A bash script that uses 'asar', 'grep', and 'sed' to add CSS hotloading to Discord Canary.
+A bash script that uses 'asar', 'grep', and 'sed' to add CSS hotloading to Discord Canary.  This script more than likely only works on Linux.
 
 The function for hotloading CSS and the 'cssInjection.js' script are both from [BeautifulDiscord](https://github.com/leovoel/BeautifulDiscord).
 
