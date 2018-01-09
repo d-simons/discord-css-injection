@@ -1,59 +1,87 @@
 #!/bin/bash -e
 # Title: discord-css-injection
-# Description: Uses asar, grep, and sed to add the cssInjection.js script from BeautifulDiscord into Discord Canary's config dir
-# Description: Currently only works with Discord Canary, but support for other versions will be added when `core.asar` is pushed to them
+# Description: Uses asar, grep, and sed to add the cssInjection.js script from BeautifulDiscord into Discord's config dir
+# Description: Works for all versions of Discord
 # License: MIT
 # Dependencies: nodejs, asar
 
 REALPATH="$(readlink -f $0)"
 RUNNING_DIR="$(dirname "$REALPATH")"
+case $1 in
+    --help)
+        echo "discord-css-injection.sh v0.0.4 - Add CSS hotloading to Discord"
+        echo "Usage: /path/to/discord-css-injection.sh [option]"
+        echo
+        echo "The path for your custom CSS file may be specified.  For example:"
+        echo "'/path/to/discord-css-injection.sh $HOME/Documents/custom-css.css'"
+        echo
+        echo "Arguments:"
+        echo "  --revert - Revert changes to Discord and remove CSS hotloading"
+        echo "  --help   - Show this help output"
+        exit 0
+        ;;
+esac
+# Select the version of Discord that will have CSS hotloading added
+echo "Which version of Discord are we working with?"
+echo "1 - Discord Stable"
+echo "2 - Discord PTB"
+echo "3 - Discord Canary"
+echo "4 - Exit"
+echo
+read -p "Choice? 1/2/3/4 " VERSION_CHOICE
+case $VERSION_CHOICE in
+    1)
+        DISCORD_VERSION="discord"
+        DISCORD_FULL_NAME="Discord Stable"
+        ;;
+    2)
+        DISCORD_VERSION="discordptb"
+        DISCORD_FULL_NAME="Discord PTB"
+        ;;
+    3)
+        DISCORD_VERSION="discordcanary"
+        DISCORD_FULL_NAME="Discord Canary"
+        ;;
+    *)
+        echo "Exiting..."
+        exit 1
+        ;;
+esac
 # Detect the directory containing the modules directory using grep
-VERSION_DIR="$(dir -C -w 1 "$HOME"/.config/discordcanary | grep '^[0-9].[0-9].')"
+VERSION_DIR="$(dir -C -w 1 "$HOME"/.config/"$DISCORD_VERSION" | grep '^[0-9].[0-9].')"
 if [ $(echo "$VERSION_DIR" | wc -l) -gt 1 ]; then
-    echo "More than one version directory was detected in Discord Canary's config directory!"
-    read -p "Remove '$HOME/.config/discordcanary/$(echo "$VERSION_DIR" | head -n 1)' directory? Y/N " VERSION_DIR_ANSWER
+    echo "More than one version directory was detected in $DISCORD_FULL_NAME's config directory!"
+    read -p "Remove '$HOME/.config/$DISCORD_VERSION/$(echo "$VERSION_DIR" | head -n 1)' directory? Y/N " VERSION_DIR_ANSWER
     case $VERSION_DIR_ANSWER in
         Y|y)
-            rm -rf "$HOME"/.config/discordcanary/$(echo "$VERSION_DIR" | head -n 1)
-            echo "Removed '$HOME/.config/discordcanary/$(echo "$VERSION_DIR" | head -n 1)'"
-            VERSION_DIR="$(dir -C -w 1 "$HOME"/.config/discordcanary | grep '^[0-9].[0-9].')"
+            rm -rf "$HOME"/.config/"$DISCORD_VERSION"/$(echo "$VERSION_DIR" | head -n 1)
+            echo "Removed '$HOME/.config/$DISCORD_VERSION/$(echo "$VERSION_DIR" | head -n 1)'"
+            VERSION_DIR="$(dir -C -w 1 "$HOME"/.config/"$DISCORD_VERSION" | grep '^[0-9].[0-9].')"
             ;;
         *)
-            echo "'$HOME/.config/discordcanary/$(echo "$VERSION_DIR" | head -n 1)' was not removed!"
+            echo "'$HOME/.config/$DISCORD_VERSION/$(echo "$VERSION_DIR" | head -n 1)' was not removed!"
             exit 1
             ;;
     esac
 fi
 # Set the path to the CSS file that the user will put their CSS changes in
 if [ -z "$1" ]; then
-    CSS_PATH="$HOME/.config/discordcanary/custom-css.css"
+    CSS_PATH="$HOME/.config/$DISCORD_VERSION/custom-css.css"
 else
     case $1 in
         --revert)
-            if [ ! -f "$HOME/.config/discordcanary/$VERSION_DIR/modules/discord_desktop_core/core.asar.bak" ]; then
+            if [ ! -f "$HOME/.config/$DISCORD_VERSION/$VERSION_DIR/modules/discord_desktop_core/core.asar.bak" ]; then
                 echo "'core.asar.bak' not found!"
-                echo "Has '$HOME/.config/discordcanary' been modified?"
+                echo "Has '$HOME/.config/$DISCORD_VERSION' been modified?"
                 exit 1
             fi
             echo "Removing previously modified 'core.asar' and restoring 'core.asar.bak'..."
-            rm -rf "$HOME"/.config/discordcanary/"$VERSION_DIR"/modules/discord_desktop_core/app
-            rm -rf "$HOME"/.config/discordcanary/"$VERSION_DIR"/modules/discord_desktop_core/common
-            rm -rf "$HOME"/.config/discordcanary/"$VERSION_DIR"/modules/discord_desktop_core/node_modules
-            mv "$HOME"/.config/discordcanary/"$VERSION_DIR"/modules/discord_desktop_core/core.asar.bak "$HOME"/.config/discordcanary/"$VERSION_DIR"/modules/discord_desktop_core/core.asar
-            echo "Reverted changes to '$HOME/.config/discordcanary/$VERSION_DIR/modules/discord_desktop_core/'"
-            echo "If Discord Canary is running, please restart it for CSS hotloading to be removed."
-            exit 0
-            ;;
-        --help)
-            echo "discord-css-injection.sh - Add CSS hotloading to Discord Canary"
-            echo "Usage: /path/to/discord-css-injection.sh [option]"
-            echo
-            echo "The path for your custom CSS file may be specified.  For example:"
-            echo "'/path/to/discord-css-injection.sh $HOME/Documents/custom-css.css'"
-            echo
-            echo "Arguments:"
-            echo "  --revert - Revert changes to Discord Canary and remove CSS hotloading"
-            echo "  --help   - Show this help output"
+            rm -rf "$HOME"/.config/"$DISCORD_VERSION"/"$VERSION_DIR"/modules/discord_desktop_core/app
+            rm -rf "$HOME"/.config/"$DISCORD_VERSION"/"$VERSION_DIR"/modules/discord_desktop_core/common
+            rm -rf "$HOME"/.config/"$DISCORD_VERSION"/"$VERSION_DIR"/modules/discord_desktop_core/node_modules
+            mv "$HOME"/.config/"$DISCORD_VERSION"/"$VERSION_DIR"/modules/discord_desktop_core/core.asar.bak "$HOME"/.config/"$DISCORD_VERSION"/"$VERSION_DIR"/modules/discord_desktop_core/core.asar
+            echo "Reverted changes to '$HOME/.config/$DISCORD_VERSION/$VERSION_DIR/modules/discord_desktop_core/'"
+            echo "If $DISCORD_FULL_NAME is running, please restart it for CSS hotloading to be removed."
             exit 0
             ;;
         *)
@@ -65,22 +93,22 @@ else
             ;;
     esac
 fi
-if [ ! -f "$HOME/.config/discordcanary/$VERSION_DIR/modules/discord_desktop_core/core.asar" ]; then
+if [ ! -f "$HOME/.config/$DISCORD_VERSION/$VERSION_DIR/modules/discord_desktop_core/core.asar" ]; then
     echo "core.asar not found!"
-    echo "Has '$HOME/.config/discordcanary' already been modified by another app?"
+    echo "Has '$HOME/.config/$DISCORD_VERSION' already been modified by another app?"
     exit 1
 fi
 
 # Remove extracted directories and backed up core.asar.bak if they exist
-if [ -f "$HOME/.config/discordcanary/$VERSION_DIR/modules/discord_desktop_core/core.asar.bak" ]; then
+if [ -f "$HOME/.config/$DISCORD_VERSION/$VERSION_DIR/modules/discord_desktop_core/core.asar.bak" ]; then
     read -p "Previous backup found; remove and continue? Y/N " REMOVE_ANSWER
     case $REMOVE_ANSWER in
         Y|y)
             echo "Removing previous core.asar.bak file..."
-            rm -rf "$HOME"/.config/discordcanary/"$VERSION_DIR"/modules/discord_desktop_core/app
-            rm -rf "$HOME"/.config/discordcanary/"$VERSION_DIR"/modules/discord_desktop_core/common
-            rm -rf "$HOME"/.config/discordcanary/"$VERSION_DIR"/modules/discord_desktop_core/node_modules
-            rm -f "$HOME"/.config/discordcanary/"$VERSION_DIR"/modules/discord_desktop_core/core.asar.bak
+            rm -rf "$HOME"/.config/"$DISCORD_VERSION"/"$VERSION_DIR"/modules/discord_desktop_core/app
+            rm -rf "$HOME"/.config/"$DISCORD_VERSION"/"$VERSION_DIR"/modules/discord_desktop_core/common
+            rm -rf "$HOME"/.config/"$DISCORD_VERSION"/"$VERSION_DIR"/modules/discord_desktop_core/node_modules
+            rm -f "$HOME"/.config/"$DISCORD_VERSION"/"$VERSION_DIR"/modules/discord_desktop_core/core.asar.bak
             ;;
         *)
             echo "Previous backup was not removed and no modifications were made!"
@@ -92,8 +120,8 @@ fi
 # Clean up on failure
 function injectionfailure() {
     rm -rf /tmp/discord-css-injection
-    if [ -f "$HOME/.config/discordcanary/$VERSION_DIR/modules/discord_desktop_core/core.asar.bak" ]; then
-        mv "$HOME"/.config/discordcanary/"$VERSION_DIR"/modules/discord_desktop_core/core.asar.bak "$HOME"/.config/discordcanary/"$VERSION_DIR"/modules/discord_desktop_core/core.asar
+    if [ -f "$HOME/.config/$DISCORD_VERSION/$VERSION_DIR/modules/discord_desktop_core/core.asar.bak" ]; then
+        mv "$HOME"/.config/"$DISCORD_VERSION"/"$VERSION_DIR"/modules/discord_desktop_core/core.asar.bak "$HOME"/.config/"$DISCORD_VERSION"/"$VERSION_DIR"/modules/discord_desktop_core/core.asar
     fi
     exit 1
 }
@@ -107,11 +135,11 @@ else
     mkdir /tmp/discord-css-injection
 fi
 if [ -f "$HOME/node_modules/.bin/asar" ]; then
-    ~/node_modules/.bin/asar e "$HOME"/.config/discordcanary/"$VERSION_DIR"/modules/discord_desktop_core/core.asar /tmp/discord-css-injection/ || { echo "Failed to extract 'core.asar'!"; injectionfailure; }
+    ~/node_modules/.bin/asar e "$HOME"/.config/"$DISCORD_VERSION"/"$VERSION_DIR"/modules/discord_desktop_core/core.asar /tmp/discord-css-injection/ || { echo "Failed to extract 'core.asar'!"; injectionfailure; }
 elif [ -f "$RUNNING_DIR/../share/discord-css-injection/node_modules/asar/bin/asar.js" ]; then
-    "$RUNNING_DIR"/../share/discord-css-injection/node_modules/asar/bin/asar.js e "$HOME"/.config/discordcanary/"$VERSION_DIR"/modules/discord_desktop_core/core.asar /tmp/discord-css-injection/ || { echo "Failed to extract 'core.asar'!"; injectionfailure; }
+    "$RUNNING_DIR"/../share/discord-css-injection/node_modules/asar/bin/asar.js e "$HOME"/.config/"$DISCORD_VERSION"/"$VERSION_DIR"/modules/discord_desktop_core/core.asar /tmp/discord-css-injection/ || { echo "Failed to extract 'core.asar'!"; injectionfailure; }
 elif type asar >/dev/null 2>&1; then
-    asar e "$HOME"/.config/discordcanary/"$VERSION_DIR"/modules/discord_desktop_core/core.asar /tmp/discord-css-injection/ || { echo "Failed to extract 'core.asar'!"; injectionfailure; }
+    asar e "$HOME"/.config/"$DISCORD_VERSION"/"$VERSION_DIR"/modules/discord_desktop_core/core.asar /tmp/discord-css-injection/ || { echo "Failed to extract 'core.asar'!"; injectionfailure; }
 else
     echo "'asar' not found; could not extract 'core.asar'!"
     injectionfailure
@@ -119,7 +147,7 @@ fi
 
 # Create a backup of 'core.asar' just in case
 echo "Moving 'core.asar' to 'core.asar.bak'..."
-mv "$HOME"/.config/discordcanary/"$VERSION_DIR"/modules/discord_desktop_core/core.asar "$HOME"/.config/discordcanary/"$VERSION_DIR"/modules/discord_desktop_core/core.asar.bak
+mv "$HOME"/.config/"$DISCORD_VERSION"/"$VERSION_DIR"/modules/discord_desktop_core/core.asar "$HOME"/.config/"$DISCORD_VERSION"/"$VERSION_DIR"/modules/discord_desktop_core/core.asar.bak
 
 # Use sed to add variables fs and fs2 to mainScreen.js right above the path varaible
 echo "Adding necessary variables and function for hotloading CSS to '/tmp/discord-css-injection/app/mainScreen.js'..."
@@ -138,27 +166,27 @@ sed -i '/  mainWindow.webContents.on(*..*, function (e, killed).*/ i \
   });\
 ' /tmp/discord-css-injection/app/mainScreen.js || { echo "Failed to modify 'mainScreen.js'!"; injectionfailure; }
 # Replace the cssInjection.js path with the proper path using $HOME
-sed -i "s%/home/simonizor/.config/discordcanary/cssInjection.js%$HOME/.config/discordcanary/cssInjection.js%g" /tmp/discord-css-injection/app/mainScreen.js
+sed -i "s%/home/simonizor/.config/discordcanary/cssInjection.js%$HOME/.config/$DISCORD_VERSION/cssInjection.js%g" /tmp/discord-css-injection/app/mainScreen.js
 # Use 'asar' to pack '/tmp/discord-css-injection' to '$HOME/.config/discordcanar/$VERSION_DIR/modules/discord_desktop_core/core.asar'
-echo "Packing '/tmp/discord-css-injection' to '$HOME/.config/discordcanary/$VERSION_DIR/modules/discord_desktop_core/core.asar'..."
+echo "Packing '/tmp/discord-css-injection' to '$HOME/.config/$DISCORD_VERSION/$VERSION_DIR/modules/discord_desktop_core/core.asar'..."
 if [ -f "$HOME/node_modules/.bin/asar" ]; then
-    ~/node_modules/.bin/asar p /tmp/discord-css-injection/ "$HOME"/.config/discordcanary/"$VERSION_DIR"/modules/discord_desktop_core/core.asar || { echo "Failed to pack 'core.asar'!"; injectionfailure; }
+    ~/node_modules/.bin/asar p /tmp/discord-css-injection/ "$HOME"/.config/"$DISCORD_VERSION"/"$VERSION_DIR"/modules/discord_desktop_core/core.asar || { echo "Failed to pack 'core.asar'!"; injectionfailure; }
 elif [ -f "$RUNNING_DIR/../share/discord-css-injection/node_modules/asar/bin/asar.js" ]; then
-    "$RUNNING_DIR"/../share/discord-css-injection/node_modules/asar/bin/asar.js p /tmp/discord-css-injection/ "$HOME"/.config/discordcanary/"$VERSION_DIR"/modules/discord_desktop_core/core.asar || { echo "Failed to pack 'core.asar'!"; injectionfailure; }
+    "$RUNNING_DIR"/../share/discord-css-injection/node_modules/asar/bin/asar.js p /tmp/discord-css-injection/ "$HOME"/.config/"$DISCORD_VERSION"/"$VERSION_DIR"/modules/discord_desktop_core/core.asar || { echo "Failed to pack 'core.asar'!"; injectionfailure; }
 elif type asar >/dev/null 2>&1; then
-    asar p /tmp/discord-css-injection/ "$HOME"/.config/discordcanary/"$VERSION_DIR"/modules/discord_desktop_core/core.asar || { echo "Failed to pack 'core.asar'!"; injectionfailure; }
+    asar p /tmp/discord-css-injection/ "$HOME"/.config/"$DISCORD_VERSION"/"$VERSION_DIR"/modules/discord_desktop_core/core.asar || { echo "Failed to pack 'core.asar'!"; injectionfailure; }
 else
     rm -rf /tmp/discord-css-injection
     echo "'asar' not found; could not pack 'core.asar'!"
     injectionfailure
 fi
 rm -rf /tmp/discord-css-injection
-# Create cssInjection.js from BeautifulDiscord in $HOME/.config/discordcanary
-if [ -f "$HOME/.config/discordcanary/cssInjection.js" ]; then
-    rm "$HOME"/.config/discordcanary/cssInjection.js
+# Create cssInjection.js from BeautifulDiscord in $HOME/.config/"$DISCORD_VERSION"
+if [ -f "$HOME/.config/$DISCORD_VERSION/cssInjection.js" ]; then
+    rm "$HOME"/.config/"$DISCORD_VERSION"/cssInjection.js
 fi
-echo "Creating '$HOME/.config/discordcanary/cssInjecton.js' for hotloading CSS..."
-cat >"$HOME"/.config/discordcanary/cssInjection.js << EOL
+echo "Creating '$HOME/.config/$DISCORD_VERSION/cssInjecton.js' for hotloading CSS..."
+cat >"$HOME"/.config/"$DISCORD_VERSION"/cssInjection.js << EOL
 window._fs = require("fs");
 window._path = require("path");
 window._fileWatcher = null;
@@ -230,12 +258,12 @@ window.applyAndWatchCSS('/home/simonizor/github/DiscordThemes/compact-discord/co
 
 EOL
 # Use sed to change the path for the custom CSS file to the path inputted by the user or the default path if no input
-sed -i "s%/home/simonizor/github/DiscordThemes/compact-discord/compact-discord.css%$CSS_PATH%g" "$HOME"/.config/discordcanary/cssInjection.js
+sed -i "s%/home/simonizor/github/DiscordThemes/compact-discord/compact-discord.css%$CSS_PATH%g" "$HOME"/.config/"$DISCORD_VERSION"/cssInjection.js
 # Create the custom CSS file if it does not exist to avoid errors
 if [ ! -f "$CSS_PATH" ]; then
     touch "$CSS_PATH"
 fi
-echo "Finished injecting variables and function for hotloading CSS into Discord Canary!"
+echo "Finished injecting variables and function for hotloading CSS into $DISCORD_FULL_NAME!"
 echo "You may edit your custom CSS file in $CSS_PATH"
-echo "Discord Canary must be restarted before CSS hotloading will work; please do so now."
+echo "$DISCORD_FULL_NAME must be restarted before CSS hotloading will work; please do so now."
 exit 0
