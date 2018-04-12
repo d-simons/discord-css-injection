@@ -159,7 +159,7 @@ var _fs2 = _interopRequireDefault(_fs);\
 
 # Use sed to add the function from BeautifulDiscord to hotload CSS to mainScreen.js directly above the crash detection function
 sed -i '/  mainWindow.webContents.on(*..*, function (e, killed).*/ i \
-  mainWindow.webContents.on('"'"'dom-ready'"'"', function () {\
+  mainWindow.webContents.on('"'"'did-finish-load'"'"', function () {\
     mainWindow.webContents.executeJavaScript(\
       _fs2.default.readFileSync('"'"'/home/simonizor/.config/discordcanary/cssInjection.js'"'"', '"'"'utf-8'"'"')\
     );\
@@ -167,6 +167,7 @@ sed -i '/  mainWindow.webContents.on(*..*, function (e, killed).*/ i \
 ' /tmp/discord-css-injection/app/mainScreen.js || { echo "Failed to modify 'mainScreen.js'!"; injectionfailure; }
 # Replace the cssInjection.js path with the proper path using $HOME
 sed -i "s%/home/simonizor/.config/discordcanary/cssInjection.js%$HOME/.config/$DISCORD_VERSION/cssInjection.js%g" /tmp/discord-css-injection/app/mainScreen.js
+sed -i "s%nodeIntegration: false%nodeIntegration: true%g" /tmp/discord-css-injection/app/mainScreen.js
 # Use 'asar' to pack '/tmp/discord-css-injection' to '$HOME/.config/discordcanar/$VERSION_DIR/modules/discord_desktop_core/core.asar'
 echo "Packing '/tmp/discord-css-injection' to '$HOME/.config/$DISCORD_VERSION/$VERSION_DIR/modules/discord_desktop_core/core.asar'..."
 if [ -f "$HOME/node_modules/.bin/asar" ]; then
