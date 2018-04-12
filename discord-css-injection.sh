@@ -9,7 +9,7 @@ REALPATH="$(readlink -f $0)"
 RUNNING_DIR="$(dirname "$REALPATH")"
 case $1 in
     --help)
-        echo "discord-css-injection.sh v0.0.4 - Add CSS hotloading to Discord"
+        echo "discord-css-injection.sh v0.0.5 - Add CSS hotloading to Discord"
         echo "Usage: /path/to/discord-css-injection.sh [option]"
         echo
         echo "The path for your custom CSS file may be specified.  For example:"
