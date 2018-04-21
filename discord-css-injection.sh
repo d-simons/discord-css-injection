@@ -10,10 +10,11 @@ RUNNING_DIR="$(dirname "$REALPATH")"
 case $1 in
     --help)
         echo "discord-css-injection.sh v0.0.5 - Add CSS hotloading to Discord"
-        echo "Usage: /path/to/discord-css-injection.sh [option]"
+        echo "installer made by logo4poop"
+        echo "Usage: discord-css-injections [option]"
         echo
         echo "The path for your custom CSS file may be specified.  For example:"
-        echo "'/path/to/discord-css-injection.sh $HOME/Documents/custom-css.css'"
+        echo "'discord-css-injection $HOME/Documents/custom-css.css'"
         echo
         echo "Arguments:"
         echo "  --revert - Revert changes to Discord and remove CSS hotloading"
