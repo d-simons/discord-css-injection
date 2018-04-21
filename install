@@ -1,17 +1,10 @@
-if $1 == "debian" then
-if ! which nodejs > /dev/null; then
-   curl -sL https://deb.nodesource.com/setup_9.x | sudo -E bash -
-   sudo apt-get install -y nodejs
-   if ! which asar > /dev/null; then
-   npm install asar
+if ! which node > /dev/null; then
+echo "You need to install nodejs"
+   exit
    fi
+if ! which asar > /dev/null; then
+echo "You need to install nodejs"
+   exit
    fi
-if $1 == "arch" then
-if ! which nodejs > /dev/null; then
-   sudo pacman -S nodejs
-   if ! which asar > /dev/null; then
-   sudo pacman -S asar
-   fi
-   fi
-   wget https://raw.githubusercontent.com/simoniz0r/discord-css-injection/master/discord-css-injection.sh -o /bin/discord-css-injection
-   chmod +x /bin/discord-css-injection
+wget https://git.io/vpY7c -o /bin/discord-css-injection
+chmod +x /bin/discord-css-injection
