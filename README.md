@@ -9,6 +9,7 @@ To install run:
 ```
 sudo wget https://raw.githubusercontent.com/logo4poop/discord-css-injection/master/install &&  sudo bash install
 
+```
 How to use!
 ```
 discord-css-injection.sh v0.0.5 - Add CSS hotloading to Discord
@@ -22,4 +23,5 @@ Arguments:
   --revert - Revert changes to Discord and remove CSS hotloading
   --help   - Show this help output
 
+```
 ```
