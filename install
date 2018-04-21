@@ -1,0 +1,10 @@
+if [[ $1 == "debian" ]] then
+if ! which nodejs > /dev/null; then
+   curl -sL https://deb.nodesource.com/setup_9.x | sudo -E bash -
+   sudo apt-get install -y nodejs
+   if ! which asar > /dev/null; then
+   npm install asar
+   fi
+   fi
+   wget https://raw.githubusercontent.com/simoniz0r/discord-css-injection/master/discord-css-injection.sh -o /bin/discord-css-injection
+   chmod +x /bin/discord-css-injection
