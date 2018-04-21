@@ -1,4 +1,6 @@
-sudo su
+#!/usr/bin/env bash
+
+if ! $user == "root"; then
 echo "Installing"
 if ! which node > /dev/null; then
 echo "You need to install nodejs"
@@ -19,3 +21,4 @@ echo ":( You need to install sed"
 wget https://git.io/vpY7c -O /bin/discord-css-injection
 chmod +x /bin/discord-css-injection
 echo "Done installing!"
+fi
