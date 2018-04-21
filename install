@@ -14,5 +14,5 @@ echo ":( You need to install grep"
 echo ":( You need to install sed"
    exit
    fi
-wget https://git.io/vpY7c -o /bin/discord-css-injection
+wget https://git.io/vpY7c -O /bin/discord-css-injection
 chmod +x /bin/discord-css-injection
