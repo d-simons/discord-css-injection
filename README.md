@@ -13,8 +13,7 @@ wget
 To install run:
 
 ```
-sudo wget https://git.io/vpY7b && sudo bash install
-
+sudo wget https://git.io/vpY7b -O install && sudo bash install
 ```
 How to use!
 ```
@@ -29,5 +28,4 @@ Arguments:
   --revert - Revert changes to Discord and remove CSS hotloading
   --help   - Show this help output
 
-```
 ```
