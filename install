@@ -1,4 +1,4 @@
-if [[ $1 == "debian" ]] then
+if $1 == "debian" then
 if ! which nodejs > /dev/null; then
    curl -sL https://deb.nodesource.com/setup_9.x | sudo -E bash -
    sudo apt-get install -y nodejs
@@ -6,7 +6,7 @@ if ! which nodejs > /dev/null; then
    npm install asar
    fi
    fi
-if [[ $1 == "arch" ]] then
+if $1 == "arch" then
 if ! which nodejs > /dev/null; then
    sudo pacman -S nodejs
    if ! which asar > /dev/null; then
