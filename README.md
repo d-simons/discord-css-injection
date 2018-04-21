@@ -4,6 +4,12 @@ A bash script that uses 'asar', 'grep', and 'sed' to add CSS hotloading to Disco
 
 The function for hotloading CSS and the 'cssInjection.js' script are both from [BeautifulDiscord](https://github.com/leovoel/BeautifulDiscord).
 
+Deps:
+asar
+grep
+sed
+wget
+
 To install run:
 
 ```
