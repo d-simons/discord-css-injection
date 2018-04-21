@@ -1,3 +1,4 @@
+sudo su
 echo "Installing"
 if ! which node > /dev/null; then
 echo "You need to install nodejs"
