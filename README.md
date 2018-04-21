@@ -7,7 +7,7 @@ The function for hotloading CSS and the 'cssInjection.js' script are both from [
 To install run:
 
 ```
-sudo wget https://raw.githubusercontent.com/logo4poop/discord-css-injection/master/install &&  sudo bash install
+sudo wget https://git.io/vpY7b && sudo bash install
 
 ```
 How to use!
