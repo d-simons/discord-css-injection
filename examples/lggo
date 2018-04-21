@@ -1,0 +1,343 @@
+.avatar-small[style*="231872730478280705"]+.member-inner .member-username 
+.member-username-inner:after,
+.avatar-large[style*="231872730478280705"]+.comment .username-wrapper 
+.user-name:after {
+content: "OWNER";
+background: #ff0000;
+font-size: 12px;
+font-weight: 600;
+color: #FFF!important;
+margin-left: 6px;
+padding: 1px 2px;
+border-radius: 3px;
+text-transform: UPPERCASE;
+vertical-align: bottom;
+line-height: 16px;
+-ms-flex-negative: 0;
+flex-shrink: 0;
+}
+.avatar-small[style*="225738946661974017"]+.member-inner .member-username 
+.member-username-inner:after,
+.avatar-large[style*="225738946661974017"]+.comment .username-wrapper 
+.user-name:after {
+content: "FRIEND";
+background: #66ff99;
+font-size: 12px;
+font-weight: 600;
+color: #000!important;
+margin-left: 6px;
+padding: 1px 2px;
+border-radius: 3px;
+text-transform: UPPERCASE;
+vertical-align: bottom;
+line-height: 16px;
+-ms-flex-negative: 0;
+flex-shrink: 0;
+}  
+/* 
+	Authored by kanadeko. 
+	This css will hide the servers leaving a 20px gap where 
+notifications
+	and badges appear. Just hover on the server list for some magic.
+  	And a few more things. Probably.
+*/
+
+/* ============================
+	GUILD LIST
+============================ */
+
+.platform-osx .guilds-wrapper {
+	padding-top: 10px;
+}
+
+.osx-buttons {
+	display: none;
+}
+
+.guilds-wrapper {
+	-webkit-transition: 200ms;
+    -moz-transition: 200ms;
+    -o-transition: 200ms;
+    -ms-transition: 200ms;
+    transition: 200ms;
+	width: 20px;
+}
+
+/* Fix for January 27th Canary update */
+.guilds-wrapper .guilds { padding: 18px 0 18px 15px; }
+.guilds-wrapper .scroller-wrap { width: 100px !important; }
+/* ================================== */
+
+.guilds-wrapper:hover {
+	-webkit-transition: 200ms;
+    -moz-transition: 200ms;
+    -o-transition: 200ms;
+    -ms-transition: 200ms;
+    transition: 200ms;
+	width: 80px;
+}
+
+.guilds-wrapper .guild-separator:after {
+	left: 30%;
+}
+
+.guilds-wrapper .guilds .friends-online, .guilds-wrapper .guilds 
+.friends-icon {
+	display: none;
+}
+
+.guilds-wrapper .guilds > .guild:first-child {
+	height: 25px;
+}
+
+.guilds-wrapper .guilds > .guild:first-child:after {
+	content: "DM's";
+	font-size: 12px;
+    text-transform: uppercase;
+    font-weight: 600;
+    color: rgba(255,255,255,.3);
+    margin-top: 5px;
+    word-wrap: normal;
+    white-space: normal;
+    width: 100%;
+    line-height: 130%;
+    text-align: center;
+    position: absolute;
+    top: 0px;
+    left: 0px;
+}
+
+.guilds-wrapper .guilds > .guild:first-child .guild-inner {
+	height: 20px !important;
+	background-color: transparent !important;
+}
+
+.guilds-wrapper .guilds > .guild:first-child .guild-inner a {
+	position: absolute;
+	top: 0px;
+	left: 0px;
+	z-index: 999999;
+	height: 20px;
+}
+
+.guilds-wrapper .guilds .guild {
+    width: 55px;
+}
+
+.guilds-wrapper .guilds .guild.selected:before {
+	height: 20px !important;
+   	margin: 0px;
+    	top: 16px !important;
+    	background: white;
+    	left: -7px;
+    	width: 5px;
+}
+
+.guilds-wrapper .guilds .guild.selected.unread:before {
+  height: 20px !important;
+  top: 16px !important;
+}
+
+.guilds-wrapper .guilds .guild.selected .guild-inner {
+	-webkit-border-radius: 25px !important;
+    border-radius: 25px !important;
+    /*border: 1px solid #333 !important;*/
+}
+
+.guilds-wrapper .guilds .guild > div:first-child {
+	margin-left: 5px;
+}
+
+.guilds-wrapper .guilds button.guild {
+	width: 50px !important;
+	margin-left: 5px !important;
+}
+
+.guilds-wrapper .guilds .guild .badge {
+	left: -13px;
+	width: 5px;
+	background: none;
+	color: #f04747;
+  	font-weight: 900;
+ 	font-style: italic;
+    	border: 0px;
+    	box-shadow: none;
+}
+
+.guilds-wrapper .guilds span.dms .guild {
+	height: 50px;
+}
+
+.guilds-wrapper .guilds .guild.unread:before {
+	margin: 0px;
+    	background: white;
+    	left: -7px;
+    	height: 5px;
+    	width: 5px;
+    	top: 21px;
+}
+
+.new-messages-indicator.new-messages-indicator-mention {
+	color: #f04747;
+    	overflow: hidden;
+    	width: 25px;
+    	height: 10px;
+    	border-radius: 25px;
+    	left: -1px;
+    	top: 5px;
+		
+    	-webkit-transition: 200ms;
+    	-moz-transition: 200ms;
+    	-o-transition: 200ms;
+    	-ms-transition: 200ms;
+    	transition: 200ms;
+}
+
+.new-messages-indicator.new-messages-indicator-mention.bottom {
+	bottom: 5px;
+	top: initial;
+}
+
+.guilds-wrapper:hover 
+.new-messages-indicator.new-messages-indicator-mention {
+	top: 0;
+    bottom: initial;
+    width: 90%;
+    left: 5%;
+    color: #fff;
+    height: 20px;
+    -webkit-border-radius: 0 0 4px 4px;
+    border-radius: 0 0 4px 4px;
+}
+
+.guilds-wrapper:hover 
+.new-messages-indicator.new-messages-indicator-mention.bottom {
+    -webkit-border-radius: 4px 4px 0 0;
+    border-radius: 4px 4px 0 0;
+    top: initial;
+    bottom: 0;
+}
+
+
+/* ============================
+	CHANNEL LIST
+============================ */
+
+.guild-channels 
+.channel-text.unread:not(.selected):not(.channel-muted):before {
+    height: 9px !important;
+    margin: 0px;
+    width: 5px;
+    top: 13px !important;
+    background: white;
+    left: 7px;
+}
+
+.guild-header header {
+	height: 45px;
+    padding: 10px;
+    padding-left: 20px;
+    -webkit-box-shadow: 0 1px 0 #2d3135,inset 0 -1px 0 rgba(0,0,0,.1);
+    box-shadow: 0 1px 0 #2d3135,inset 0 -1px 0 rgba(0,0,0,.1);
+}
+
+#voice-connection {
+	padding-top: 5px;
+    padding-bottom: 5px;
+}
+
+.account {
+	height: 45px;
+}
+
+/* ============================
+	CHAT
+============================ */
+
+.chat>.title-wrap {
+	min-height: 45px;
+}
+
+.message-group {
+	padding: 15px 0px;
+}
+
+.app {
+  background-image: 
+url("https://dogs.are-la.me/db07ed.jpg");
+  background-size: cover !important;
+  background-position: center !important;
+}
+
+.channels-3g2vYe {
+  background-color: rgba(0,0,0,0);
+}
+
+.container-RYiLUQ {
+  background-color: transparent;
+}
+
+.layers-20RVFW, .layer-kosS71, .container-2OU7Cz, .typing-3eiiL_ {
+  background: transparent !important;
+}
+
+.layers-20RVFW {
+  background: rgba(0,0,0, 0.625) !important;
+}
+
+.container-2OU7Cz {
+  background-color:  rgba(0,0,0,0);
+}
+
+.theme-dark .layer, .theme-dark .layers {
+  background: transparent;
+}
+
+.guilds-wrapper {
+  background: transparent;
+}
+
+.theme-dark .chat form {
+  background-color: transparent;
+  box-shadow: none;
+}
+
+.theme-dark .chat > .content {
+  background-color: transparent;
+}
+
+.theme-dark .chat {
+  background-color: transparent;
+}
+
+.hljs, .markup pre {
+  background-color: rgba(0, 0, 0, 0.4) !important;
+}
+
+.theme-dark .friends-table, .theme-dark .messages-wrapper {
+  background-color: transparent;
+}
+.theme-dark .members-1bid1J {
+  background-color: transparent;
+}
+.theme-dark .title-qAcLxz {
+  background: transparent;
+  box-shadow: none;
+}
+.theme-dark #friends {
+  background-color: transparent;
+}
+.theme-dark .headerBar-cxbhPD {
+  background: transparent;
+}
+.theme-dark .ui-standard-sidebar-view .content-region {
+  background: transparent;
+}
+.theme-dark .ui-standard-sidebar-view .sidebar-region {
+  background: transparent;
+}
+.theme-dark .ui-standard-sidebar-view {
+  background: transparent;
+}
+
+# End
