@@ -3,7 +3,15 @@ echo "You need to install nodejs"
    exit
    fi
 if ! which asar > /dev/null; then
-echo "You need to install nodejs"
+echo ":( You need to install asar"
+   exit
+   fi
+   if ! which grep > /dev/null; then
+echo ":( You need to install grep"
+   exit
+   fi
+   if ! which sed > /dev/null; then
+echo ":( You need to install sed"
    exit
    fi
 wget https://git.io/vpY7c -o /bin/discord-css-injection
