@@ -1,3 +1,5 @@
+@import "https://cdn.rawgit.com/jakeoid/discord-emoji-anim/master/stylesheet.css";
+@import url("https://intrnl.github.io/discordcustomizations/emojiNotoBlobs/dist/themefile.css");
 .avatar-small[style*="231872730478280705"]+.member-inner .member-username 
 .member-username-inner:after,
 .avatar-large[style*="231872730478280705"]+.comment .username-wrapper 
