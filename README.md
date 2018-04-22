@@ -15,6 +15,10 @@ To install run:
 ```
 sudo wget https://git.io/vpY7b -O install && sudo bash install
 ```
+For some distros that does not work so use:
+```
+sudo wget https://git.io/vpYx8 -O install && sudo bash install
+```
 How to use!
 ```
 discord-css-injection.sh v0.0.5 - Add CSS hotloading to Discord
