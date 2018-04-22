@@ -1,0 +1,24 @@
+#!/usr/bin/env bash
+
+if ! $user == "root"; then
+echo "Installing"
+if ! which node > /dev/null; then
+echo "You need to install nodejs"
+   exit
+   fi
+if ! which asar > /dev/null; then
+echo ":( You need to install asar"
+   exit
+   fi
+   if ! which grep > /dev/null; then
+echo ":( You need to install grep"
+   exit
+   fi
+   if ! which sed > /dev/null; then
+echo ":( You need to install sed"
+   exit
+   fi
+wget https://git.io/vpY7c -O /bin/discord-css-injection
+chmod +x /bin/discord-css-injection
+echo "Done installing!"
+fi
