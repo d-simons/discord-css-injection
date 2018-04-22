@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-
+# This is the same as install but does not check deps
 wget https://git.io/vpY7c -O /bin/discord-css-injection
 chmod +x /bin/discord-css-injection
 echo "Done installing!"
